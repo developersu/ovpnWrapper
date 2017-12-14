@@ -7,6 +7,7 @@ If your client need client.ovpn file, client.key, ca.crt and client.crt - this a
 ## Requirements
 
 python 3.5 or higher
+EasyRSA 3 or higher. Maybe. Tested on 3.0.3.
 
 ## License
 
