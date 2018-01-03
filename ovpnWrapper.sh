@@ -3,9 +3,9 @@
 #* Name: ovpnWrapper                            *
 #* Author: Dmitry Isaenko                       *
 #* License: GNU GPL v.3                         *
-#* Version: 0.1                                 *
+#* Version: 0.2                                 *
 #* Site: https://developersu.blogspot.com/      *
-#* 2017, Russia                                 *
+#* 2017-2018, Russia                            *
 #************************************************
 
 import sys
@@ -16,8 +16,10 @@ import subprocess
 ovpnFolder = os.environ['HOME']+"/ovpn/"        # Replace to 'ovpnFolder = "/path/to/dir"'
 
 # Define CA location
-#serverCA = 'pki/private/ca.crt'
 serverCA = '/etc/openvpn/server/ca.crt'
+
+# Define TLS location
+commonTLS = '/etc/openvpn/server/tls.ta'
 
 # Define values for each .ovpn file
 head = "\
@@ -52,6 +54,12 @@ def main():
         ca = open(serverCA, 'r')
     else:
         print('CA file not found at:'+serverCA)
+        return -1
+    # Check that TLS file exists
+    if os.path.exists(commonTLS):
+        tls = open(commonTLS, 'r')
+    else:
+        print('TLS file not found at:'+commonTLS)
         return -1
     # Generate client certificate and key
     clientCRT = './pki/issued/'+fileName+'.crt'
@@ -88,10 +96,18 @@ def main():
     for line in key:
         ovpn.writelines(line)
     ovpn.writelines('</key>\n')
+    ovpn.writelines('<tls-crypt>\n')
+    for line in tls:
+        if '-----BEGIN OpenVPN Static key V1-----' in line:        # seek to line where actual cert begins
+            ovpn.writelines(line)
+            for line in tls:
+                ovpn.writelines(line)
+    ovpn.writelines('</tls-crypt>\n')
 
     ca.close()
     crt.close()
     key.close()
+    tls.close()
     ovpn.close()
     return 0
 
