@@ -22,6 +22,7 @@ $ vim ovpnWrapper.sh
 change:
 	ovpnFolder
 	serverCA
+	commonTLS
 	head
 ```
 ## Uninstall
